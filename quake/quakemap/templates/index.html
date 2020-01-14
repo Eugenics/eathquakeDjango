@@ -1,1 +1,16 @@
-<h1>session_key</h1>
+<h1>session_key:{{session_key}}</h1>
+<br>
+
+{% if eathquake_features %}
+    <ul>
+        {% for feature in eathquake_features %}
+        <li>
+            place: {{feature}}; mag:{{feature.properties.mag}};
+            <a href="{{feature.properties.url}}">
+                {{feature.properties.url}}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+{% else %}
+{% endif %}

@@ -3,8 +3,7 @@ from decimal import Decimal
 
 
 class Eathquake(models.Model):
-    session_id = models.UUIDField()
-    id_info = models.IntegerField()
+    session_id = models.UUIDField()    
     src = models.CharField(max_length=50)
     id_eathquake = models.CharField(max_length=50)
     version = models.CharField(max_length=50)
