@@ -1,0 +1,53 @@
+{% load static bulma_tags i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock title %}</title>
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'bulma/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bulma/css/style.min.css' %}">
+
+    {% block extra_css %}{% endblock extra_css %}
+    {% endblock css %}
+
+</head>
+
+<body>
+    {% block header %}
+    {% endblock header %}
+
+    {% block hero %}
+    <section class="section" id="main_form">
+        {% block content %}{% endblock %}
+    </section>
+    {% endblock hero %}
+
+    {% block footer %}
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <p>
+                    <a href="https://github.com/Eugenics">EUGENICS</a>
+                </p>
+                <p>
+                    <a class="icon" href="https://github.com/Eugenics/eathquakeDjango">
+                        <i class="fa fa-github"></i>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </footer>
+    {% endblock footer %}
+
+    {% block javascript %}
+    {% block extra_javascript %}
+    {% endblock extra_javascript %}
+    {% endblock javascript %}
+</body>
+
+</html>

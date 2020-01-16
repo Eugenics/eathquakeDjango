@@ -1,16 +1,75 @@
+{% extends "base_generic.html" %}
+{% load bulma_tags i18n %}
+
+{% block content %}
 <h1>session_key:{{session_key}}</h1>
-<br>
+<br />
+
+<div class="level-left">
+    <div class="level-item">
+        <form class="form" id="filter_form" action="{% url 'search' %}" method="POST">
+            {% csrf_token %}
+            <div class="field is-grouped">
+                <p class="control">
+                    <input class="input" type="date" placeholder="" name="date_from" value="{{date_from}}">
+                </p>
+                <p class="control">
+                    <input class="input" type="date" placeholder="" name="date_till" value="{{date_till}}">
+                </p>
+                <p class="control">
+                    <input class="input" type="text" placeholder="" name="mag" value="{{mag}}">
+                </p>
+                <p class="control">
+                    <button class="button is-dark" type="button" name="search_btn">{% trans 'Search' %}</button>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<br />
+
+<h2>feature count:{{quake_count}}</h2>
+
+<br />
 
 {% if eathquake_features %}
-    <ul>
+<table class="table is-hoverable is-fullwidth">
+    <thead>
+        <tr>
+            <th align="center"><abbr title="src">source</abbr></th>
+            <th align="center"><abbr title="id_eathquake">id eathquake</abbr></th>
+            <th align="center"><abbr title="eathquake_time">eathquake time</abbr></th>
+            <th align="center"><abbr title="lat">lat</abbr></th>
+            <th align="center"><abbr title="lng">lng</abbr></th>
+            <th align="center"><abbr title="mag">mag</abbr></th>
+            <th align="center"><abbr title="depth">depth</abbr></th>
+            <th align="center"><abbr title="region">region</abbr></th>
+            <th align="center"><abbr title="url">url</abbr></th>
+        </tr>
+    </thead>
+    <tbody>
         {% for feature in eathquake_features %}
-        <li>
-            place: {{feature}}; mag:{{feature.properties.mag}};
-            <a href="{{feature.properties.url}}">
-                {{feature.properties.url}}
-            </a>
-        </li>
+        <tr>
+            <td>{{feature.src}}</td>
+            <td>{{feature.id_eathquake}}</td>
+            <td>{{feature.eathquake_time}}</td>
+            <td>{{feature.lat}}</td>
+            <td>{{feature.lng}}</td>
+            <td>{{feature.mag}}</td>
+            <td>{{feature.depth}}</td>
+            <td>{{feature.region}}</td>
+            <td>
+                {% if feature.url %}
+                <a href="{{feature.url}}">{{feature.url}}</a>
+                {% endif %}
+            </td>
+        </tr>
         {% endfor %}
-    </ul>
+    </tbody>
+</table>
+<ul>
 {% else %}
 {% endif %}
+
+{% endblock %}
