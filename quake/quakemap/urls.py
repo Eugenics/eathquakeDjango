@@ -4,6 +4,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('',views.search, name='search'),    
-
+    path('search/', views.EathquakeSearchView.as_view(), name='search'),
 ]

@@ -2,25 +2,26 @@
 {% load bulma_tags i18n %}
 
 {% block content %}
-<h1>session_key:{{session_key}}</h1>
+{% load static %}
+<span class="tag is-danger is-medium">session_key: {{session_key}}</span>
+<br />
 <br />
 
 <div class="level-left">
     <div class="level-item">
-        <form class="form" id="filter_form" action="{% url 'search' %}" method="POST">
-            {% csrf_token %}
+        <form class="form" id="filter_form" action="{% url 'search' %}" method="GET">
             <div class="field is-grouped">
                 <p class="control">
-                    <input class="input" type="date" placeholder="" name="date_from" value="{{date_from}}">
+                    <input class="input is-dark is-hoverable" type="date" placeholder="" name="date_from" value="{{date_from}}">
                 </p>
                 <p class="control">
-                    <input class="input" type="date" placeholder="" name="date_till" value="{{date_till}}">
+                    <input class="input is-dark is-hoverable" type="date" placeholder="" name="date_till" value="{{date_till}}">
                 </p>
                 <p class="control">
-                    <input class="input" type="text" placeholder="" name="mag" value="{{mag}}">
+                    <input class="input is-dark is-hoverable" type="number" placeholder="" name="mag" value="{{mag}}">
                 </p>
                 <p class="control">
-                    <button class="button is-dark" type="button" name="search_btn">{% trans 'Search' %}</button>
+                    <button class="button is-dark" type="submit">{% trans 'Search' %}</button>
                 </p>
             </div>
         </form>
@@ -29,28 +30,28 @@
 
 <br />
 
-<h2>feature count:{{quake_count}}</h2>
 
-<br />
-
-{% if eathquake_features %}
 <table class="table is-hoverable is-fullwidth">
     <thead>
         <tr>
-            <th align="center"><abbr title="src">source</abbr></th>
-            <th align="center"><abbr title="id_eathquake">id eathquake</abbr></th>
-            <th align="center"><abbr title="eathquake_time">eathquake time</abbr></th>
-            <th align="center"><abbr title="lat">lat</abbr></th>
-            <th align="center"><abbr title="lng">lng</abbr></th>
-            <th align="center"><abbr title="mag">mag</abbr></th>
-            <th align="center"><abbr title="depth">depth</abbr></th>
-            <th align="center"><abbr title="region">region</abbr></th>
-            <th align="center"><abbr title="url">url</abbr></th>
+            <th style="width: 50px;" align="center"></th>
+            <th align="center">Source</th>
+            <th align="center">id</th>
+            <th align="center">Time</th>
+            <th align="center">LAT</th>
+            <th align="center">LNG</th>
+            <th align="center">mag</th>
+            <th align="center">Depth</th>
+            <th align="center">Region</th>
+            <th align="center">URL</th>
         </tr>
     </thead>
     <tbody>
+        <tr><span class="tag is-dark is-medium">Points found: {{quake_count}}</span></tr>
+        {% if eathquake_features %}
         {% for feature in eathquake_features %}
         <tr>
+            <td><img src="{% static "images/map-pin-point-366x592.png" %}" alt="map_pin" /></td>
             <td>{{feature.src}}</td>
             <td>{{feature.id_eathquake}}</td>
             <td>{{feature.eathquake_time}}</td>
@@ -66,10 +67,8 @@
             </td>
         </tr>
         {% endfor %}
+        {% else %}
+        {% endif %}
     </tbody>
 </table>
-<ul>
-{% else %}
-{% endif %}
-
 {% endblock %}

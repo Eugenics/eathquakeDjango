@@ -20,6 +20,6 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('quakemap', include('quakemap.urls')),
-    path('', RedirectView.as_view(url='/quakemap', permanent=True)),
+    path('quakemap/', include('quakemap.urls')),
+    path('', RedirectView.as_view(url='quakemap/', permanent=True)),
 ]
