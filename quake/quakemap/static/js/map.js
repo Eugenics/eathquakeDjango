@@ -27,17 +27,21 @@ var markerVectorLayer = new ol.layer.Vector({
     source: vectorSource,
 });
 
-/*
+
 marker.setStyle(
     new ol.style.Style({
-        image: new CircleStyle({
-            radius: 5,
-            fill: new Fill({
-                color: '#ffcd46'
+        image: new ol.style.Circle({
+            radius: 6,
+            stroke: new ol.style.Stroke({
+                color: 'orange',
+                width: 2
+            }),
+            fill: new ol.style.Fill({
+                color: 'white'
             })            
         })
     })
 );
-*/
+
 
 map.addLayer(markerVectorLayer);
