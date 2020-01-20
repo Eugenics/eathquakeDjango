@@ -3,6 +3,11 @@
 
 {% block content %}
 {% load static %}
+<div id="map">
+
+</div>
+
+<br/>
 <span class="tag is-danger is-medium">session_key: {{session_key}}</span>
 <br />
 <br />
@@ -21,6 +26,9 @@
                     <input class="input is-dark is-hoverable" type="number" placeholder="" name="mag" value="{{mag}}">
                 </p>
                 <p class="control">
+                    <input class="input is-dark is-hoverable" type="text" placeholder="" name="region" value="{{region}}">
+                </p>
+                <p class="control">
                     <button class="button is-dark" type="submit">{% trans 'Search' %}</button>
                 </p>
             </div>
@@ -34,8 +42,7 @@
 <table class="table is-hoverable is-fullwidth">
     <thead>
         <tr>
-            <th style="width: 50px;" align="center"></th>
-            <th align="center">Source</th>
+            <th style="width: 50px;" align="center"></th>            
             <th align="center">id</th>
             <th align="center">Time</th>
             <th align="center">LAT</th>
@@ -44,15 +51,14 @@
             <th align="center">Depth</th>
             <th align="center">Region</th>
             <th align="center">URL</th>
-        </tr>
+        </tr>        
     </thead>
     <tbody>
         <tr><span class="tag is-dark is-medium">Points found: {{quake_count}}</span></tr>
         {% if eathquake_features %}
         {% for feature in eathquake_features %}
         <tr>
-            <td><img src="{% static "images/map-pin-point-366x592.png" %}" alt="map_pin" /></td>
-            <td>{{feature.src}}</td>
+            <td><img src="{% static "images/map-pin-point-366x592.png" %}" alt="map_pin" /></td>            
             <td>{{feature.id_eathquake}}</td>
             <td>{{feature.eathquake_time}}</td>
             <td>{{feature.lat}}</td>

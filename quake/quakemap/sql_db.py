@@ -6,6 +6,21 @@ from quake.settings import BASE_DIR
 import os
 
 
+def decdeg2dms(dd):
+    negative = dd < 0
+    dd = abs(dd)
+    minutes, seconds = divmod(dd*3600, 60)
+    degrees, minutes = divmod(minutes, 60)
+    if negative:
+        if degrees > 0:
+            degrees = -degrees
+        elif minutes > 0:
+            minutes = -minutes
+        else:
+            seconds = -seconds
+    return (degrees, minutes, seconds)
+
+
 def create_db_connection():
     conn = None
 
@@ -21,8 +36,8 @@ def insert_eathquake(sql_object):
     conn = create_db_connection()
 
     sql_string = '''INSERT INTO quakemap_eathquake(session_id,src,id_eathquake,version
-                        ,eathquake_time,lat,lng,mag,depth,nst,region,data_source,create_date,url)
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+                        ,eathquake_time,lat,lng,mag,depth,nst,region,data_source,create_date,url,lat_deg,lng_deg)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
     try:
         with conn:
@@ -45,20 +60,25 @@ def create_row(feature, session_id):
     local_date_time = local_date_time + \
         datetime.timedelta(milliseconds=properties['time'])
 
+    lat_deg = decdeg2dms(coordinates[0])
+    lng_deg = decdeg2dms(coordinates[1])
+
     sql_object = (session_id,
-                    properties['sources'],
-                    feature['id'],
-                    '1',
-                    local_date_time,
-                    coordinates[0],
-                    coordinates[1],
-                    properties['mag'],
-                    coordinates[2],
-                    properties['nst'],
-                    properties['place'],
-                    'usgs-gov',
-                    datetime.datetime.now(),
-                    properties['url']
+                  properties['sources'],
+                  feature['id'],
+                  '1',
+                  local_date_time,
+                  coordinates[0],
+                  coordinates[1],
+                  properties['mag'],
+                  coordinates[2],
+                  properties['nst'],
+                  properties['place'],
+                  'usgs-gov',
+                  datetime.datetime.now(),
+                  properties['url'],
+                  str(lat_deg[0]) + "°" + str(lat_deg[1]) + "'" + str(lat_deg[2]) + "''",
+                  str(lng_deg[0]) + "°" + str(lng_deg[1]) + "'" + str(lng_deg[2]) + "''",
                   )
 
     row_id = insert_eathquake(sql_object)

@@ -22,6 +22,8 @@ class Eathquake(models.Model):
     data_source = models.CharField(max_length=500, null=True, blank=True)
     create_date = models.DateTimeField(null=True, blank=True)
     url = models.CharField(max_length=2500,null=True,blank=True)
+    lat_deg = models.CharField(max_length=100,null=True,blank=True)
+    lng_deg = models.CharField(max_length=100,null=True,blank=True)
 
     objects = models.Manager()
 

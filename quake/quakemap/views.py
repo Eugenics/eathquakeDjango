@@ -22,14 +22,14 @@ class EathquakeSearchView(generic.TemplateView):
 
         feature_list = Eathquake.objects.all()
 
-
         date_from = datetime.datetime.now().date().strftime("%Y-%m-%d")
         date_till = datetime.datetime.now().date().strftime("%Y-%m-%d")
         mag = 0
+        region = ''
 
         if 'date_from' in self.request.GET:
             date_from = self.request.GET['date_from']
-            
+
         if 'date_till' in self.request.GET:
             date_till = self.request.GET['date_till']
 
@@ -42,7 +42,15 @@ class EathquakeSearchView(generic.TemplateView):
             if feature_list.filter(id_eathquake=feature['id']).count() == 0:
                 create_row(feature, session_key)
 
-        features = Eathquake.objects.filter(
+        features = Eathquake.objects.all()
+
+        # ----------------- Region filter
+        if 'region' in self.request.GET:
+            region = self.request.GET['region']
+            if len(region) > 0:
+                features = features.filter(region__icontains=region)
+
+        features = features.filter(
             mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
         context['session_key'] = session_key
@@ -51,6 +59,7 @@ class EathquakeSearchView(generic.TemplateView):
         context['date_from'] = date_from
         context['date_till'] = date_till
         context['mag'] = mag
+        context['region'] = region
 
         return context
 
@@ -64,7 +73,8 @@ def index(request):
 
     #date_from = date_from - datetime.timedelta(days=1)
 
-    mag = 5.0
+    mag = 5
+    region = ''
 
     eathquake_features = get_json_data(date_from, date_till)
 
@@ -81,6 +91,7 @@ def index(request):
         'date_from': date_from,
         'date_till': date_till,
         'mag': mag,
+        'region': region,
     }
 
     return render(request, 'index.html', context)
