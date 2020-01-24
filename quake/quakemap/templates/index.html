@@ -1,69 +1,85 @@
 {% extends "base_generic.html" %}
-{% load bulma_tags i18n %}
+{% load static i18n %}
 
 {% block content %}
-{% load static %}
-<div id="map">
-
+<div id="map" class='map'>
 </div>
-
-<br/>
+<div id="popup" class="ol-popup">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+</div>
+<br />
 <span class="tag is-danger is-medium">session_key: {{session_key}}</span>
 <br />
 <br />
 
-<div class="level-left">
-    <div class="level-item">
-        <form class="form" id="filter_form" action="{% url 'search' %}" method="GET">
-            <div class="field is-grouped">
-                <p class="control">
-                    <input class="input is-dark is-hoverable" type="date" placeholder="" name="date_from" value="{{date_from}}">
-                </p>
-                <p class="control">
-                    <input class="input is-dark is-hoverable" type="date" placeholder="" name="date_till" value="{{date_till}}">
-                </p>
-                <p class="control">
-                    <input class="input is-dark is-hoverable" type="number" placeholder="" name="mag" value="{{mag}}">
-                </p>
-                <p class="control">
-                    <input class="input is-dark is-hoverable" type="text" placeholder="" name="region" value="{{region}}">
-                </p>
-                <p class="control">
-                    <button class="button is-dark" type="submit">{% trans 'Search' %}</button>
-                </p>
-            </div>
-        </form>
+
+<form class="form" id="filter_form" action="{% url 'search' %}" method="GET">
+    <div class="form-row align-items-end">
+        <div class="col-auto">
+            <label for="inputDateFrom">Date from</label>
+            <input class="form-control" type="date" placeholder="" name="date_from" value="{{date_from}}"
+                id="inputDateFrom">
+        </div>
+        <div class="col-auto">
+            <label for="inputDateFrom">Date till</label>
+            <input class="form-control" type="date" placeholder="" name="date_till" value="{{date_till}}"
+                id="inputDateTill">
+        </div>
+        <div class="col-auto">
+            <label for="inputMag">Magnitude</label>
+            <input class="form-control" type="number" placeholder="" name="mag" value="{{mag}}" id="inputMag">
+        </div>
+        <div class="col-auto">
+            <label for="inputPlace">Place</label>
+            <input class="form-control" type="text" placeholder="" name="region" value="{{region}}" id="inputPlace">
+        </div>
+        <div class="col-auto">            
+            <button class="btn btn-outline-dark my-2 my-sm-0" type="submit" id="btnSubmit">{% trans 'Search' %}</button>
+        </div>
     </div>
-</div>
+</form>
+<button class="btn btn-outline-dark my-2 my-sm-0" id="clickBtn" onclick="clickFunction">{% trans 'Test' %}</button>
+
 
 <br />
 
 
-<table class="table is-hoverable is-fullwidth">
-    <thead>
+<table class="table table-bordered table-sm">
+    <thead class="thead-dark">
         <tr>
-            <th style="width: 50px;" align="center"></th>            
+            <th style="width: 20px;" align="center"></th>
             <th align="center">id</th>
             <th align="center">Time</th>
             <th align="center">LAT</th>
             <th align="center">LNG</th>
-            <th align="center">mag</th>
+            <th align="center">Magnitude</th>
             <th align="center">Depth</th>
-            <th align="center">Region</th>
-            <th align="center">URL</th>
-        </tr>        
+            <th align="center">Location</th>
+            <th align="center">Details</th>
+        </tr>
     </thead>
     <tbody>
         <tr><span class="tag is-dark is-medium">Points found: {{quake_count}}</span></tr>
         {% if eathquake_features %}
         {% for feature in eathquake_features %}
         <tr>
-            <td><img src="{% static "images/map-pin-point-366x592.png" %}" alt="map_pin" /></td>            
+            <td>
+                <!--<img src="{% static "images/map-pin-point-366x592.png" %}" alt="map_pin" />-->
+            </td>
             <td>{{feature.id_eathquake}}</td>
             <td>{{feature.eathquake_time}}</td>
-            <td>{{feature.lat}}</td>
-            <td>{{feature.lng}}</td>
-            <td>{{feature.mag}}</td>
+            <td>{{feature.lat_deg}}</td>
+            <td>{{feature.lng_deg}}</td>
+            {% if feature.mag <= 3 %}
+            <td class="bg-success">{{feature.mag}}</td>
+            {% else %}
+            {% if feature.mag >= 5 %}
+            <td class="bg-danger">{{feature.mag}}</td>
+            {% else %}
+            <td class="bg-warning">{{feature.mag}}</td>
+            {% endif %}
+            {% endif %}
             <td>{{feature.depth}}</td>
             <td>{{feature.region}}</td>
             <td>
@@ -77,4 +93,13 @@
         {% endif %}
     </tbody>
 </table>
+
+
+
+<script>
+    var json_text = '{{json_text}}';
+</script>
+<script src="{% static 'js/map.js' %}"></script>
+<script src="{% static 'js/quake.js' %}"></script>
+<script src="{% static 'js/test.js' %}"></script>
 {% endblock %}

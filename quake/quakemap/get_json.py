@@ -10,10 +10,10 @@ def get_json_data(date_from, date_till):
                             + date_from + "&endtime="
                             + date_till + "&minmagnitude=2")
 
-    eathquakes_list = json.loads(response.text)
-    eathquake_features = eathquakes_list["features"]
+    #eathquakes_list = json.loads(response.text)
+    
 
-    return eathquake_features
+    return json.loads(response.text)
 
     # for eathquake_feature in eathquake_features:
     #        eathquake_properties = eathquake_feature["properties"]
