@@ -43,10 +43,10 @@ map.on('click', function (evt) {
         var mapfeature_coordinates = mapfeature.getGeometry().getCoordinates();
         var hdms = ol.coordinate.toStringHDMS(mapfeature.get('Coordinates'));
         console.log(mapfeature.get('Details'));
-        content.innerHTML = '<h1><a href="' + mapfeature.get('Details') + '">' + mapfeature.get('Place') + '</a></h1>' +
+        content.innerHTML = '<h1 class="h4 mb-1><a href="' + mapfeature.get('Details') + '">' + mapfeature.get('Mag') + 'M ' + mapfeature.get('Place') + '</a></h1>' +
             '<dl><dt>Time</dt><dd><time datetime="' + mapfeature.get('Time') + '">' + mapfeature.get('Time') + '</time></dd>' +
             '<dt>Location</dt><dd><code>' + hdms + '</code></dd>' +
-            '<dt>Depth</dt><dd>' + mapfeature.get('Mag') + '</dd></dl>';
+            '<dt>Mag</dt><dd>' + mapfeature.get('Mag') + '</dd></dl>';
         popup.setPosition(mapfeature_coordinates);
     } else {}
 });
