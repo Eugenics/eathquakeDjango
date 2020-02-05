@@ -8,7 +8,7 @@ var map = new ol.Map({
     layers: [baseLayer],
     view: new ol.View({
         center: ol.proj.fromLonLat([82.933952, 55.018803]), //Coordinates of New York
-        zoom: 3 //Initial Zoom Level
+        zoom: 2 //Initial Zoom Level
     })
 });
 
@@ -40,19 +40,35 @@ map.on('click', function (evt) {
             return mapfeature;
         });
     if (mapfeature) {
+
+
         var mapfeature_coordinates = mapfeature.getGeometry().getCoordinates();
         var hdms = ol.coordinate.toStringHDMS(mapfeature.get('Coordinates'));
-        console.log(mapfeature.get('Details'));
-        content.innerHTML = '<h1 class="h4 mb-1><a href="' + mapfeature.get('Details') + '">' + mapfeature.get('Mag') + 'M ' + mapfeature.get('Place') + '</a></h1>' +
-            '<dl><dt>Time</dt><dd><time datetime="' + mapfeature.get('Time') + '">' + mapfeature.get('Time') + '</time></dd>' +
-            '<dt>Location</dt><dd><code>' + hdms + '</code></dd>' +
-            '<dt>Mag</dt><dd>' + mapfeature.get('Mag') + '</dd></dl>';
+
+        //map.getView().setCenter(mapfeature_coordinates, 'EPSG:4326', 'EPSG:3857');
+
+        content.innerHTML = '<div class="row"><h2 class="m-0 font-weight-bold"><a href="' + mapfeature.get('Details') + '">' + mapfeature.get('Mag') + 'M ' + mapfeature.get('Place') + '</a></h2></div>' +
+            '<div class="row"><dt>Time</dt><dd><time datetime="' + mapfeature.get('Time') + '">' + mapfeature.get('Time') + '</time></dd></div>' +
+            '<div class="row"><dt>Location</dt><dd><code>' + hdms + '</code></dd></div>' +
+            '<div class="row"><dt>Mag</dt><dd>' + mapfeature.get('Mag') + '</dd></div>';
         popup.setPosition(mapfeature_coordinates);
     } else {}
 });
 
-/*
+
 // change mouse cursor when over marker
+map.on("pointermove", function (evt) {
+    var hit = this.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+        return true;
+    });
+    if (hit) {
+        this.getTargetElement().style.cursor = 'pointer';
+    } else {
+        this.getTargetElement().style.cursor = '';
+    }
+});
+
+/*
 map.on('pointermove', function (e) {
     /*if (e.dragging) {
       $(element).popover('destroy');

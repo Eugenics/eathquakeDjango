@@ -1,0 +1,55 @@
+{% load static i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Login to EarthQuakes Website</title>{% endblock title %}</title>
+
+
+    <script src="{% static 'jquery/jquery-3.4.1.min.js' %}"></script>
+    <script src="https://unpkg.com/@popperjs/core@2.0.0"></script>
+
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'fontawesome/css/all.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sb-admin-2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/animate.min.css' %}">
+
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+    {% block extra_css %}{% endblock extra_css %}
+    {% endblock css %}
+</head>
+
+<body>
+    {% block header %}
+    {% endblock header %}
+    <div id="content">
+        {% block hero %}
+        <main role="main" class="flex-shrink-0" id="main_form">
+            <div class="container" id="main_container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+        {% endblock hero %}
+
+        {% block footer %}
+        {% endblock footer %}
+    </div>
+    </div>
+
+    {% block javascript %}
+    {% block extra_javascript %}
+    {% endblock extra_javascript %}
+    {% endblock javascript %}
+</body>
+
+</html>

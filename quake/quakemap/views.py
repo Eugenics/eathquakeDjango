@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.sessions.models import Session
 from .models import Eathquake
 from .get_json import get_json_data
@@ -9,10 +9,16 @@ import datetime
 from django.views import generic
 import json
 from django.utils import timezone
+from django.core.serializers.json import DjangoJSONEncoder
+
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class EathquakeSearchView(generic.TemplateView):
-    template_name = "index.html"
+class EathquakeSearchView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "map.html"
 
     def get_queryset(self):
         return Eathquake.objects.all()
@@ -58,7 +64,10 @@ class EathquakeSearchView(generic.TemplateView):
         features = features.filter(
             mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
-        json_text = set_json_string(features, session_key)
+        feature_json_list = list(features.values(
+            'session_id', 'src', 'id_eathquake', 'version', 'eathquake_time', 'lat', 'lng', 'mag',
+            'depth', 'nst', 'region', 'data_source', 'create_date', 'url', 'lat_deg', 'lng_deg'
+        ))
 
         context['session_key'] = session_key
         context['quake_count'] = features.count()
@@ -67,12 +76,14 @@ class EathquakeSearchView(generic.TemplateView):
         context['date_till'] = date_till
         context['mag'] = mag
         context['region'] = region
-        context['json_text'] = json_text
+        context['json_list'] = json.dumps(
+            feature_json_list, cls=DjangoJSONEncoder)
 
         return context
 
 
-def index(request):
+@login_required
+def mappage(request):
     session_key = request.session.session_key
 
     day = datetime.timedelta(days=1)
@@ -96,7 +107,10 @@ def index(request):
     features = Eathquake.objects.filter(
         mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
-    json_text = set_json_string(features, session_key)
+    feature_json_list = list(features.values(
+        'session_id', 'src', 'id_eathquake', 'version', 'eathquake_time', 'lat', 'lng', 'mag',
+        'depth', 'nst', 'region', 'data_source', 'create_date', 'url', 'lat_deg', 'lng_deg'
+    ))
 
     context = {
         'session_key': session_key,
@@ -106,10 +120,10 @@ def index(request):
         'date_till': date_till,
         'mag': mag,
         'region': region,
-        'json_text': json_text,
+        'json_list': json.dumps(feature_json_list, cls=DjangoJSONEncoder),
     }
 
-    return render(request, 'index.html', context)
+    return render(request, 'map.html', context)
 
 
 def search(request, date_from, date_till, mag, region):
@@ -130,51 +144,51 @@ def search(request, date_from, date_till, mag, region):
     return render(request, 'index.html', context)
 
 
-def set_json_string(features, ss_key):
+# def set_json_string(features, ss_key):
+#
+#   json_text = '{ "points" : ['
+#
+#    for feature in features:
+#        json_text = json_text + '{ "id":"' + str(feature.id) + '", "Lat":' + str(feature.lat) + ', "Lng": ' + str(feature.lng) + ', "Mag": ' + str(
+#            feature.mag) + ', "url": "' + str(feature.url) + '", "Place": "' + str(feature.region) + '", "Time": "' + str(feature.eathquake_time) + '" },'
+#
+#    json_text = json_text + '{ "id":"empty", "Lat":0, "Lng":0, "Mag":0 }'
+#    json_text = json_text + ' ]}'
+#
+#    return json_text
 
-    json_text = '{ "points" : ['
+# ----------------- AJAX functions -------------------------------------------------------
 
-    for feature in features:
-        json_text = json_text + '{ "id":"' + str(feature.id) + '", "Lat":' + str(feature.lat) + ', "Lng": ' + str(feature.lng) + ', "Mag": ' + str(
-            feature.mag) + ', "url": "' + str(feature.url) + '", "Place": "' + str(feature.region) + '", "Time": "' + str(feature.eathquake_time) + '" },'
-
-    json_text = json_text + '{ "id":"empty", "Lat":0, "Lng":0, "Mag":0 }'
-    json_text = json_text + ' ]}'
-
-    return json_text
-
-
-def get_json_text():
-    feature_list = Eathquake.objects.all()
-    session_key = ""
-
-    date_from = '2020-01-24'
-    date_till = '2020-01-25'
-
+@login_required
+def get_filter_json_data(request):
+    date_from = datetime.datetime.now(
+        tz=timezone.utc).date().strftime("%Y-%m-%d")
+    date_till = datetime.datetime.now(
+        tz=timezone.utc).date().strftime("%Y-%m-%d")
     mag = 0
     region = ''
 
-    #if 'mag' in self.request.GET:
-    #    mag = self.request.GET['mag']
+    if 'date_from' in request.GET:
+        date_from = request.GET['date_from']
 
-    #eathquakes_list = get_json_data(date_from, date_till)
-    #eathquake_features = eathquakes_list["features"]
+    if 'date_till' in request.GET:
+        date_till = request.GET['date_till']
 
-    #for feature in eathquake_features:
-    #    if feature_list.filter(id_eathquake=feature['id']).count() == 0:
-    #        create_row(feature, session_key)
+    if 'mag' in request.GET:
+        mag = request.GET['mag']
 
-    features = feature_list
-
-    # ----------------- Region filter
-    #if 'region' in self.request.GET:
-    #    region = self.request.GET['region']
-    #    if len(region) > 0:
-    #        features = features.filter(region__icontains=region)
-
-    features = features.filter(
+    features = Eathquake.objects.filter(
         mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
-    json_text = set_json_string(features, session_key)
+    # ----------------- Region filter
+    if 'region' in request.GET:
+        region = request.GET['region']
+        if len(region) > 0:
+            features = features.filter(region__icontains=region)
 
-    return json_text
+    features_list = list(features.values(
+        'session_id', 'src', 'id_eathquake', 'version', 'eathquake_time', 'lat', 'lng', 'mag',
+        'depth', 'nst', 'region', 'data_source', 'create_date', 'url', 'lat_deg', 'lng_deg')
+    )
+
+    return JsonResponse(features_list, safe=False)
