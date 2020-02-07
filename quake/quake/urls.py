@@ -22,8 +22,3 @@ urlpatterns += [
     path('map/api/quakelist/', views.get_filter_json_data, name='quakelist'),    
 ]
 
-
-urlpatterns += [    
-    path('django_plotly_dash/', include('django_plotly_dash.urls')),
-]
-
