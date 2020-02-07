@@ -60,6 +60,10 @@ def logoutpage(request):
 def index(request):
     return render(request, 'index.html')
 
+@login_required
+def dashboard(request):
+    return render(request, 'dashboard.html')
+
 
 class EathquakeSearchView(LoginRequiredMixin, generic.TemplateView):
     template_name = "map.html"

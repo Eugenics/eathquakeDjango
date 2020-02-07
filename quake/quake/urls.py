@@ -22,3 +22,8 @@ urlpatterns += [
     path('map/api/quakelist/', views.get_filter_json_data, name='quakelist'),    
 ]
 
+
+urlpatterns += [
+    path('dashboard/', views.dashboard, name='dashboard'),        
+]
+
