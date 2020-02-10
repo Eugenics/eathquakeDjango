@@ -4,7 +4,7 @@ $(document).ready(
 
         document.getElementById("clickBtn").onclick = function () {
             clickFunction();
-        };
+        };       
 
         var json_object = JSON.parse(json_list.replace(/&quot;/g, '"'));
         var geo_features = new Array(json_object.length);

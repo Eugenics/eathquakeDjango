@@ -3,23 +3,33 @@
 
 {% block content %}
 
-<!-- Donut Chart -->
-<div class="col-xl-4 col-lg-5">
-    <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Donut Chart</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-            <div class="chart-pie pt-4">
-                <canvas id="dayChart"></canvas>
+<div class="row">
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header bg-gray-600 text-gray-100">
+                <h7 class="m-0 font-weight-bold">Total by 24 hours (by mag):</h7>
             </div>
-            <hr>            
+            <div class="card-body">
+                <canvas id="dayChart" height="400" width="400"></canvas>
+            </div>
+        </div>        
+    </div>
+    <div class="col-xl-4 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header bg-gray-600 text-gray-100">
+                <h7 class="m-0 font-weight-bold">Total by last month (by mag):</h7>
+            </div>
+            <div class="card-body">
+                <canvas id="monthChart" height="400" width="400"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
-<script src="js/chart/chart_data.js"></script>
+<script>
+    var chart_day_data = '{{chart_day_data}}';
+    var chart_mon_data = '{{chart_mon_data}}';    
+</script>
+<script src="{% static 'js/charts/charts.js' %}"></script>
 
 {% endblock%}

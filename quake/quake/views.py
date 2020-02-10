@@ -21,7 +21,9 @@ from .models import Eathquake
 from .get_json import get_json_data
 from .sql_db import create_row
 
-#----- Auth pages -----------------------------
+# ----- Auth pages -----------------------------
+
+
 def loginpage(request):
     if request.method == 'POST':
         user_name = request.POST['username']
@@ -54,15 +56,47 @@ def logoutpage(request):
     except:
         pass
     return render(request, 'login.html', {})
-#----------------------------------------------
+# ----------------------------------------------
+
 
 @login_required
 def index(request):
     return render(request, 'index.html')
 
+
 @login_required
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    day = datetime.timedelta(days=1)
+
+    date_from = datetime.datetime.now()  # - day
+    date_from = date_from.strftime("%Y-%m-%d")
+    date_till = datetime.datetime.now() + day
+    date_till = date_till.strftime("%Y-%m-%d")
+
+    first_day_of_month = datetime.datetime.now().strftime("%Y-%m-01")
+
+    # Total in past day
+    mag_less_3 = Eathquake.objects.filter(
+        mag__lt=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
+    mag_less_6 = Eathquake.objects.filter(
+        mag__lt=6, mag__gte=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
+    mag_more_6 = Eathquake.objects.filter(
+        mag__gte=6, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
+    
+    # Total in past month
+    mag_mon_less_3 = Eathquake.objects.filter(
+        mag__lt=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
+    mag_mon_less_6 = Eathquake.objects.filter(
+        mag__lt=6, mag__gte=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
+    mag_mon_more_6 = Eathquake.objects.filter(
+        mag__gte=6, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
+
+    context = {
+        'chart_day_data': {'mag_3': mag_less_3, 'mag_4': mag_less_6, 'mag_5': mag_more_6},
+        'chart_mon_data': {'mag_3': mag_mon_less_3, 'mag_4': mag_mon_less_6, 'mag_5': mag_mon_more_6},
+    }
+
+    return render(request, 'dashboard.html', context)
 
 
 class EathquakeSearchView(LoginRequiredMixin, generic.TemplateView):
@@ -79,80 +113,80 @@ class EathquakeSearchView(LoginRequiredMixin, generic.TemplateView):
         feature_list = Eathquake.objects.all()
 
         date_from = datetime.datetime.now(
-            tz=timezone.utc).date().strftime("%Y-%m-%d")
-        date_till = datetime.datetime.now(
-            tz=timezone.utc).date().strftime("%Y-%m-%d")
-        mag = 0
-        region = ''
+            tz = timezone.utc).date().strftime("%Y-%m-%d")
+        date_till=datetime.datetime.now(
+            tz = timezone.utc).date().strftime("%Y-%m-%d")
+        mag=0
+        region=''
 
         if 'date_from' in self.request.GET:
-            date_from = self.request.GET['date_from']
+            date_from=self.request.GET['date_from']
 
         if 'date_till' in self.request.GET:
-            date_till = self.request.GET['date_till']
+            date_till=self.request.GET['date_till']
 
         if 'mag' in self.request.GET:
-            mag = self.request.GET['mag']
+            mag=self.request.GET['mag']
 
-        eathquakes_list = get_json_data(date_from, date_till)
-        eathquake_features = eathquakes_list["features"]
+        eathquakes_list=get_json_data(date_from, date_till)
+        eathquake_features=eathquakes_list["features"]
 
         for feature in eathquake_features:
-            if feature_list.filter(id_eathquake=feature['id']).count() == 0:
+            if feature_list.filter(id_eathquake = feature['id']).count() == 0:
                 create_row(feature, session_key)
 
-        features = feature_list
+        features=feature_list
 
         # ----------------- Region filter
         if 'region' in self.request.GET:
-            region = self.request.GET['region']
+            region=self.request.GET['region']
             if len(region) > 0:
-                features = features.filter(region__icontains=region)
+                features=features.filter(region__icontains = region)
 
-        features = features.filter(
-            mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
+        features=features.filter(
+            mag__gte = mag, eathquake_time__gte = date_from, eathquake_time__lte = date_till)
 
-        feature_json_list = list(features.values(
+        feature_json_list=list(features.values(
             'session_id', 'src', 'id_eathquake', 'version', 'eathquake_time', 'lat', 'lng', 'mag',
             'depth', 'nst', 'region', 'data_source', 'create_date', 'url', 'lat_deg', 'lng_deg'
         ))
 
-        context['session_key'] = session_key
-        context['quake_count'] = features.count()
-        context['eathquake_features'] = features
-        context['date_from'] = date_from
-        context['date_till'] = date_till
-        context['mag'] = mag
-        context['region'] = region
-        context['json_list'] = json.dumps(
-            feature_json_list, cls=DjangoJSONEncoder)
+        context['session_key']=session_key
+        context['quake_count']=features.count()
+        context['eathquake_features']=features
+        context['date_from']=date_from
+        context['date_till']=date_till
+        context['mag']=mag
+        context['region']=region
+        context['json_list']=json.dumps(
+            feature_json_list, cls = DjangoJSONEncoder)
 
         return context
 
 
 @login_required
 def mappage(request):
-    session_key = request.session.session_key
+    session_key=request.session.session_key
 
-    day = datetime.timedelta(days=1)
+    day=datetime.timedelta(days = 1)
 
-    date_from = datetime.datetime.now()  # - day
-    date_from = date_from.strftime("%Y-%m-%d")
-    date_till = datetime.datetime.now() + day
-    date_till = date_till.strftime("%Y-%m-%d")
+    date_from=datetime.datetime.now()  # - day
+    date_from=date_from.strftime("%Y-%m-%d")
+    date_till=datetime.datetime.now() + day
+    date_till=date_till.strftime("%Y-%m-%d")
 
-    mag = 0
-    region = ''
+    mag=0
+    region=''
 
-    eathquakes_list = get_json_data(date_from, date_till)
-    eathquake_features = eathquakes_list["features"]
-    feature_list = Eathquake.objects.all()
+    eathquakes_list=get_json_data(date_from, date_till)
+    eathquake_features=eathquakes_list["features"]
+    feature_list=Eathquake.objects.all()
 
     for feature in eathquake_features:
-        if feature_list.filter(id_eathquake=feature['id']).count() == 0:
+        if feature_list.filter(id_eathquake = feature['id']).count() == 0:
             create_row(feature, session_key)
 
-    features = Eathquake.objects.filter(
+    features=Eathquake.objects.filter(
         mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
     feature_json_list = list(features.values(

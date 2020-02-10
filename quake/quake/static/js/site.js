@@ -18,4 +18,7 @@ $(document).ready(
                 e.preventDefault();
             }
         });
+
+
+        //chartFunction();
     });
