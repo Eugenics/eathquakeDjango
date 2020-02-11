@@ -2,33 +2,57 @@
 {% load static i18n %}
 
 {% block content %}
-
-<div class="row">
-    <div class="col-xl-4 col-lg-5">
-        <div class="card shadow">
-            <div class="card-header bg-gray-600 text-gray-100">
-                <h7 class="m-0 font-weight-bold">Total by 24 hours (by mag):</h7>
+<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <a href="" class="btn btn-info btn-icon-split">
+        <span class="icon text-white-50">
+            <i class="fas fa-info-circle"></i>
+        </span>
+        <span class="text">Update data</span>
+    </a>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-5 col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <span class="text">Total in past month (by mag):</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthChart" height="300" width="100"></canvas>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="dayChart" height="400" width="400"></canvas>
+        </div>
+        <div class="col-sm-5 col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <span class="text">Total in past 24 hours (by mag):</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="dayChart" height="300" width="100"></canvas>
+                </div>
             </div>
-        </div>        
-    </div>
-    <div class="col-xl-4 col-lg-5">
-        <div class="card shadow">
-            <div class="card-header bg-gray-600 text-gray-100">
-                <h7 class="m-0 font-weight-bold">Total by last month (by mag):</h7>
-            </div>
-            <div class="card-body">
-                <canvas id="monthChart" height="400" width="400"></canvas>
+        </div>
+        <div class="col-sm-5 col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <span class="text">Max magnitude values:</span>
+                </div>
+                <div class="card-body">
+                    <canvas id="maxChart" height="300" width="100"></canvas>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
+</div>
 <script>
-    var chart_day_data = '{{chart_day_data}}';
-    var chart_mon_data = '{{chart_mon_data}}';    
+    var _chart_day_data = '{{chart_day_data}}';
+    var _chart_mon_data = '{{chart_mon_data}}';
+    var _chart_max_data = '{{chart_max_data}}';
+
+    console.log(_chart_day_data);
+    console.log(_chart_mon_data);
+    console.log(_chart_max_data);
 </script>
 <script src="{% static 'js/charts/charts.js' %}"></script>
 

@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, reverse
 from django.views import generic
 from django.utils import timezone
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Max, FloatField
 
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -66,6 +67,8 @@ def index(request):
 
 @login_required
 def dashboard(request):
+    session_key = request.session.session_key
+
     day = datetime.timedelta(days=1)
 
     date_from = datetime.datetime.now()  # - day
@@ -73,7 +76,10 @@ def dashboard(request):
     date_till = datetime.datetime.now() + day
     date_till = date_till.strftime("%Y-%m-%d")
 
+    update_db_data(date_from, date_till, session_key)
+
     first_day_of_month = datetime.datetime.now().strftime("%Y-%m-01")
+    first_day_of_year = datetime.datetime.now().strftime("%Y-01-01")
 
     # Total in past day
     mag_less_3 = Eathquake.objects.filter(
@@ -82,8 +88,8 @@ def dashboard(request):
         mag__lt=6, mag__gte=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
     mag_more_6 = Eathquake.objects.filter(
         mag__gte=6, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
-    
-    # Total in past month
+
+    # Total in current month
     mag_mon_less_3 = Eathquake.objects.filter(
         mag__lt=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
     mag_mon_less_6 = Eathquake.objects.filter(
@@ -91,9 +97,27 @@ def dashboard(request):
     mag_mon_more_6 = Eathquake.objects.filter(
         mag__gte=6, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
 
+    # Max mag in past day
+    max_day_mag = Eathquake.objects.filter(
+        eathquake_time__gte=date_from, eathquake_time__lte=date_till
+    ).aggregate(Max('mag',output_field=FloatField()))
+    # Max mag in current manth
+    max_mon_mag = Eathquake.objects.filter(
+        eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till
+    ).aggregate(Max('mag',output_field=FloatField()))
+    # Max mag in current year
+    max_year_mag = Eathquake.objects.filter(
+        eathquake_time__gte=first_day_of_year, eathquake_time__lte=date_till
+    ).aggregate(Max('mag',output_field=FloatField()))
+
     context = {
-        'chart_day_data': {'mag_3': mag_less_3, 'mag_4': mag_less_6, 'mag_5': mag_more_6},
-        'chart_mon_data': {'mag_3': mag_mon_less_3, 'mag_4': mag_mon_less_6, 'mag_5': mag_mon_more_6},
+        'chart_day_data': {'mag_3': mag_less_3, 'mag_4': mag_less_6, 'mag_6': mag_more_6},
+        'chart_mon_data': {'mag_3': mag_mon_less_3, 'mag_4': mag_mon_less_6, 'mag_6': mag_mon_more_6},
+        'chart_max_data': {
+            "max_day": max_day_mag['mag__max'],
+            "max_mon": max_mon_mag['mag__max'],
+            "max_year": max_year_mag['mag__max'],
+        },
     }
 
     return render(request, 'dashboard.html', context)
@@ -113,80 +137,80 @@ class EathquakeSearchView(LoginRequiredMixin, generic.TemplateView):
         feature_list = Eathquake.objects.all()
 
         date_from = datetime.datetime.now(
-            tz = timezone.utc).date().strftime("%Y-%m-%d")
-        date_till=datetime.datetime.now(
-            tz = timezone.utc).date().strftime("%Y-%m-%d")
-        mag=0
-        region=''
+            tz=timezone.utc).date().strftime("%Y-%m-%d")
+        date_till = datetime.datetime.now(
+            tz=timezone.utc).date().strftime("%Y-%m-%d")
+        mag = 0
+        region = ''
 
         if 'date_from' in self.request.GET:
-            date_from=self.request.GET['date_from']
+            date_from = self.request.GET['date_from']
 
         if 'date_till' in self.request.GET:
-            date_till=self.request.GET['date_till']
+            date_till = self.request.GET['date_till']
 
         if 'mag' in self.request.GET:
-            mag=self.request.GET['mag']
+            mag = self.request.GET['mag']
 
-        eathquakes_list=get_json_data(date_from, date_till)
-        eathquake_features=eathquakes_list["features"]
+        eathquakes_list = get_json_data(date_from, date_till)
+        eathquake_features = eathquakes_list["features"]
 
         for feature in eathquake_features:
-            if feature_list.filter(id_eathquake = feature['id']).count() == 0:
+            if feature_list.filter(id_eathquake=feature['id']).count() == 0:
                 create_row(feature, session_key)
 
-        features=feature_list
+        features = feature_list
 
         # ----------------- Region filter
         if 'region' in self.request.GET:
-            region=self.request.GET['region']
+            region = self.request.GET['region']
             if len(region) > 0:
-                features=features.filter(region__icontains = region)
+                features = features.filter(region__icontains=region)
 
-        features=features.filter(
-            mag__gte = mag, eathquake_time__gte = date_from, eathquake_time__lte = date_till)
+        features = features.filter(
+            mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
-        feature_json_list=list(features.values(
+        feature_json_list = list(features.values(
             'session_id', 'src', 'id_eathquake', 'version', 'eathquake_time', 'lat', 'lng', 'mag',
             'depth', 'nst', 'region', 'data_source', 'create_date', 'url', 'lat_deg', 'lng_deg'
         ))
 
-        context['session_key']=session_key
-        context['quake_count']=features.count()
-        context['eathquake_features']=features
-        context['date_from']=date_from
-        context['date_till']=date_till
-        context['mag']=mag
-        context['region']=region
-        context['json_list']=json.dumps(
-            feature_json_list, cls = DjangoJSONEncoder)
+        context['session_key'] = session_key
+        context['quake_count'] = features.count()
+        context['eathquake_features'] = features
+        context['date_from'] = date_from
+        context['date_till'] = date_till
+        context['mag'] = mag
+        context['region'] = region
+        context['json_list'] = json.dumps(
+            feature_json_list, cls=DjangoJSONEncoder)
 
         return context
 
 
 @login_required
 def mappage(request):
-    session_key=request.session.session_key
+    session_key = request.session.session_key
 
-    day=datetime.timedelta(days = 1)
+    day = datetime.timedelta(days=1)
 
-    date_from=datetime.datetime.now()  # - day
-    date_from=date_from.strftime("%Y-%m-%d")
-    date_till=datetime.datetime.now() + day
-    date_till=date_till.strftime("%Y-%m-%d")
+    date_from = datetime.datetime.now()  # - day
+    date_from = date_from.strftime("%Y-%m-%d")
+    date_till = datetime.datetime.now() + day
+    date_till = date_till.strftime("%Y-%m-%d")
 
-    mag=0
-    region=''
+    mag = 0
+    region = ''
 
-    eathquakes_list=get_json_data(date_from, date_till)
-    eathquake_features=eathquakes_list["features"]
-    feature_list=Eathquake.objects.all()
+    eathquakes_list = get_json_data(date_from, date_till)
+    eathquake_features = eathquakes_list["features"]
+    feature_list = Eathquake.objects.all()
 
     for feature in eathquake_features:
-        if feature_list.filter(id_eathquake = feature['id']).count() == 0:
+        if feature_list.filter(id_eathquake=feature['id']).count() == 0:
             create_row(feature, session_key)
 
-    features=Eathquake.objects.filter(
+    features = Eathquake.objects.filter(
         mag__gte=mag, eathquake_time__gte=date_from, eathquake_time__lte=date_till)
 
     feature_json_list = list(features.values(
@@ -274,3 +298,12 @@ def search(request, date_from, date_till, mag, region):
         'mag': mag,
     }
     return render(request, 'index.html', context)
+
+
+def update_db_data(date_from, date_till, session_key):
+    eathquakes_list = get_json_data(date_from, date_till)
+    eathquake_features = eathquakes_list["features"]
+
+    for feature in eathquake_features:
+        if Eathquake.objects.filter(id_eathquake=feature['id']).count() == 0:
+            create_row(feature, session_key)
