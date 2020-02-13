@@ -3,12 +3,13 @@
 
 {% block content %}
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-    <a href="" class="btn btn-info btn-icon-split">
+    <button class="btn btn-info btn-icon-split" id="dashUpdateBtn" onclick="dashupdate">
         <span class="icon text-white-50">
             <i class="fas fa-info-circle"></i>
         </span>
         <span class="text">Update data</span>
-    </a>
+    </button>
+    <span class="text">Dashboard data auto refresh every 60 seconds...</span>
 </nav>
 <div class="container-fluid">
     <div class="row">
@@ -49,11 +50,11 @@
     var _chart_day_data = '{{chart_day_data}}';
     var _chart_mon_data = '{{chart_mon_data}}';
     var _chart_max_data = '{{chart_max_data}}';
-
-    console.log(_chart_day_data);
-    console.log(_chart_mon_data);
-    console.log(_chart_max_data);
+    var _date_from = '{{date_from}}';
+    var _date_till = '{{date_till}}';
+    var _session_key = '{{session_key}}';
 </script>
 <script src="{% static 'js/charts/charts.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
 
 {% endblock%}

@@ -2,9 +2,14 @@
 {% load static i18n %}
 
 {% block content %}
+<div id="popup" class="ol-popup border-left-info animated fadeIn">
+    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+    <div id="popup-content"></div>
+</div>
+
 <div class="card shadow">
-    <div class="card-header bg-gray-600 text-gray-100">
-        <h7 class="m-0 font-weight-bold">Earthquake map</h7>
+    <div class="card-header py-3">
+        <span class="text">Earthquake map</span>
     </div>
     <div class="card-body">
         <div id="map" class='map'>
@@ -12,18 +17,11 @@
     </div>
 </div>
 
-<div id="popup" class="ol-popup border-left-info animated fadeIn">
-    <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-    <div id="popup-content"></div>
-</div>
-
-<!--<span class="tag is-danger is-medium">session_key: {{session_key}}</span>-->
-
 <hr />
 
 <div class="card shadow">
-    <div class="card-header bg-gray-600 text-gray-100">
-        <h7 class="m-0 font-weight-bold">Search parameters</h7>
+    <div class="card-header py-3">
+        <span class="text">Search parameters</span>
     </div>
     <div class="card-body">
         <div class="container-fluid">
@@ -48,29 +46,26 @@
                         id="inputPlace">
                 </div>
                 <div class="col-auto">
-                    <!--<button class="btn btn-outline-dark my-2 my-sm-0" type="submit" id="btnSubmit">{% trans 'Search' %}</button>-->
-                    <button class="btn btn-outline-dark my-2 my-sm-0" id="clickBtn"
-                        onclick="clickFunction">{% trans 'Search' %}</button>
+                    <button class="btn btn-info btn-icon-split" id="clickBtn" onclick="clickFunction">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-info-circle"></i>
+                            <!--<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>-->
+                            <span class="text">{% trans 'Search' %}</span>
+                        </span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!--
-<form class="form" id="filter_form">
-    <div class="form-row align-items-end">
-
-    </div>
-</form>
--->
 <hr />
 
 <div class="card shadow">
     <!-- Card Header - Accordion -->
-    <a href="#collapseCardExample" class="d-block card-header py-3 bg-gray-600 text-gray-100" data-toggle="collapse"
-        role="button" aria-expanded="true" aria-controls="collapseCardExample">
-        <h7 class="m-0 font-weight-bold">Earthquke Data</h7>
+    <a href="#collapseCardExample" class="d-block card-header py-3 text-gray-600" data-toggle="collapse" role="button"
+        aria-expanded="true" aria-controls="collapseCardExample">
+        <span class="text">Earthquke Data</span>
     </a>
     <div class="collapse hide" id="collapseCardExample">
         <div class="card-body">

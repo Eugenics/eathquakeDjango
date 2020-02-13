@@ -67,59 +67,15 @@ def index(request):
 
 @login_required
 def dashboard(request):
-    session_key = request.session.session_key
-
-    day = datetime.timedelta(days=1)
-
-    date_from = datetime.datetime.now()  # - day
-    date_from = date_from.strftime("%Y-%m-%d")
-    date_till = datetime.datetime.now() + day
-    date_till = date_till.strftime("%Y-%m-%d")
-
-    update_db_data(date_from, date_till, session_key)
-
-    first_day_of_month = datetime.datetime.now().strftime("%Y-%m-01")
-    first_day_of_year = datetime.datetime.now().strftime("%Y-01-01")
-
-    # Total in past day
-    mag_less_3 = Eathquake.objects.filter(
-        mag__lt=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
-    mag_less_6 = Eathquake.objects.filter(
-        mag__lt=6, mag__gte=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
-    mag_more_6 = Eathquake.objects.filter(
-        mag__gte=6, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
-
-    # Total in current month
-    mag_mon_less_3 = Eathquake.objects.filter(
-        mag__lt=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
-    mag_mon_less_6 = Eathquake.objects.filter(
-        mag__lt=6, mag__gte=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
-    mag_mon_more_6 = Eathquake.objects.filter(
-        mag__gte=6, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
-
-    # Max mag in past day
-    max_day_mag = Eathquake.objects.filter(
-        eathquake_time__gte=date_from, eathquake_time__lte=date_till
-    ).aggregate(Max('mag',output_field=FloatField()))
-    # Max mag in current manth
-    max_mon_mag = Eathquake.objects.filter(
-        eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till
-    ).aggregate(Max('mag',output_field=FloatField()))
-    # Max mag in current year
-    max_year_mag = Eathquake.objects.filter(
-        eathquake_time__gte=first_day_of_year, eathquake_time__lte=date_till
-    ).aggregate(Max('mag',output_field=FloatField()))
-
+    max_data = get_data_for_dashboard(request)
     context = {
-        'chart_day_data': {'mag_3': mag_less_3, 'mag_4': mag_less_6, 'mag_6': mag_more_6},
-        'chart_mon_data': {'mag_3': mag_mon_less_3, 'mag_4': mag_mon_less_6, 'mag_6': mag_mon_more_6},
-        'chart_max_data': {
-            "max_day": max_day_mag['mag__max'],
-            "max_mon": max_mon_mag['mag__max'],
-            "max_year": max_year_mag['mag__max'],
-        },
+        'chart_day_data': max_data['chart_day_data'],
+        'chart_mon_data': max_data['chart_mon_data'],
+        'chart_max_data': max_data['chart_max_data'],
+        'date_from': max_data['date_from'],
+        'date_till': max_data['date_till'],
+        'session_key': max_data['session_key'],
     }
-
     return render(request, 'dashboard.html', context)
 
 
@@ -231,8 +187,105 @@ def mappage(request):
 
     return render(request, 'map.html', context)
 
+# ----------------- Functions ------------------------------------------------------------
+
+
+def search(request, date_from, date_till, mag, region):
+    session_key = request.session.session_key
+    feature_list = Eathquake.objects.all()
+
+    date_from = datetime.datetime.now().date().strftime("%Y-%m-%d")
+    date_till = datetime.datetime.now().date().strftime("%Y-%m-%d")
+
+    context = {
+        'session_key': session_key,
+        'quake_count': feature_list.count(),
+        'eathquake_features': feature_list,
+        'date_from': date_from,
+        'date_till': date_till,
+        'mag': mag,
+    }
+    return render(request, 'index.html', context)
+
+
+def update_db_data(date_from, date_till, session_key):
+    """[Function for update data in database]
+
+    Arguments:
+        date_from {[date time]} -- [Date from]
+        date_till {[date time]} -- [Date till]
+        session_key {[type]} -- [Session key]
+    """
+
+    eathquakes_list = get_json_data(date_from, date_till)
+    eathquake_features = eathquakes_list["features"]
+
+    for feature in eathquake_features:
+        if Eathquake.objects.filter(id_eathquake=feature['id']).count() == 0:
+            create_row(feature, session_key)
+
+
+def get_data_for_dashboard(request):
+    session_key = request.session.session_key
+
+    day = datetime.timedelta(days=1)
+
+    date_from = datetime.datetime.now()  # - day
+    date_from = date_from.strftime("%Y-%m-%d")
+    date_till = datetime.datetime.now() + day
+    date_till = date_till.strftime("%Y-%m-%d")
+
+    update_db_data(date_from, date_till, session_key)
+
+    first_day_of_month = datetime.datetime.now().strftime("%Y-%m-01")
+    first_day_of_year = datetime.datetime.now().strftime("%Y-01-01")
+
+    # Total in past day
+    mag_less_3 = Eathquake.objects.filter(
+        mag__lt=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
+    mag_less_6 = Eathquake.objects.filter(
+        mag__lt=6, mag__gte=3, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
+    mag_more_6 = Eathquake.objects.filter(
+        mag__gte=6, eathquake_time__gte=date_from, eathquake_time__lte=date_till).count()
+
+    # Total in current month
+    mag_mon_less_3 = Eathquake.objects.filter(
+        mag__lt=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
+    mag_mon_less_6 = Eathquake.objects.filter(
+        mag__lt=6, mag__gte=3, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
+    mag_mon_more_6 = Eathquake.objects.filter(
+        mag__gte=6, eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till).count()
+
+    # Max mag in past day
+    max_day_mag = Eathquake.objects.filter(
+        eathquake_time__gte=date_from, eathquake_time__lte=date_till
+    ).aggregate(Max('mag', output_field=FloatField()))
+    # Max mag in current manth
+    max_mon_mag = Eathquake.objects.filter(
+        eathquake_time__gte=first_day_of_month, eathquake_time__lte=date_till
+    ).aggregate(Max('mag', output_field=FloatField()))
+    # Max mag in current year
+    max_year_mag = Eathquake.objects.filter(
+        eathquake_time__gte=first_day_of_year, eathquake_time__lte=date_till
+    ).aggregate(Max('mag', output_field=FloatField()))
+
+    return {
+        "date_from": date_from,
+        "date_till": date_till,
+        "session_key": session_key,
+        "chart_day_data": {"mag_3": mag_less_3,
+                            "mag_4": mag_less_6, "mag_6": mag_more_6},
+        "chart_mon_data": {"mag_3": mag_mon_less_3,
+                            "mag_4": mag_mon_less_6, "mag_6": mag_mon_more_6},
+        "chart_max_data": {
+            "max_day": max_day_mag['mag__max'],
+            "max_mon": max_mon_mag['mag__max'],
+            "max_year": max_year_mag['mag__max'],
+        },
+    }
 
 # ----------------- AJAX functions -------------------------------------------------------
+
 
 @login_required
 def get_filter_json_data(request):
@@ -268,42 +321,7 @@ def get_filter_json_data(request):
 
     return JsonResponse(features_list, safe=False)
 
-# def set_json_string(features, ss_key):
-#
-#   json_text = '{ "points" : ['
-#
-#    for feature in features:
-#        json_text = json_text + '{ "id":"' + str(feature.id) + '", "Lat":' + str(feature.lat) + ', "Lng": ' + str(feature.lng) + ', "Mag": ' + str(
-#            feature.mag) + ', "url": "' + str(feature.url) + '", "Place": "' + str(feature.region) + '", "Time": "' + str(feature.eathquake_time) + '" },'
-#
-#    json_text = json_text + '{ "id":"empty", "Lat":0, "Lng":0, "Mag":0 }'
-#    json_text = json_text + ' ]}'
-#
-#    return json_text
 
-
-def search(request, date_from, date_till, mag, region):
-    session_key = request.session.session_key
-    feature_list = Eathquake.objects.all()
-
-    date_from = datetime.datetime.now().date().strftime("%Y-%m-%d")
-    date_till = datetime.datetime.now().date().strftime("%Y-%m-%d")
-
-    context = {
-        'session_key': session_key,
-        'quake_count': feature_list.count(),
-        'eathquake_features': feature_list,
-        'date_from': date_from,
-        'date_till': date_till,
-        'mag': mag,
-    }
-    return render(request, 'index.html', context)
-
-
-def update_db_data(date_from, date_till, session_key):
-    eathquakes_list = get_json_data(date_from, date_till)
-    eathquake_features = eathquakes_list["features"]
-
-    for feature in eathquake_features:
-        if Eathquake.objects.filter(id_eathquake=feature['id']).count() == 0:
-            create_row(feature, session_key)
+@login_required
+def update_dashboard(request):
+    return JsonResponse(get_data_for_dashboard(request), safe=False)

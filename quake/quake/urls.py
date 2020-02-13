@@ -7,7 +7,7 @@ from django.contrib.auth.views import LoginView
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='home'),    
+    path('', views.dashboard, name='home'),    
     path('admin/', admin.site.urls),
     #path('quakemap/', include('quakemap.urls'), name='map'),    
     path('signin/', views.loginpage, name='signin'),
@@ -24,6 +24,8 @@ urlpatterns += [
 
 
 urlpatterns += [
-    path('dashboard/', views.dashboard, name='dashboard'),        
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/update/',views.update_dashboard,name='dashboard_update'),
+    path('update/',views.update_dashboard,name='dashboard_update'),
 ]
 

@@ -20,7 +20,7 @@
     <script src="{% static 'js/moment.js' %}"></script>
 
     <script src="{% static 'Chart.js/Chart.min.js' %}"></script>
-    <script src="{% static 'Chart.js/utils.js' %}"></script>    
+    <script src="{% static 'Chart.js/utils.js' %}"></script>
     <script src="{% static 'js/site.js' %}"></script>
 
 
@@ -130,7 +130,7 @@
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">            
+            <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
@@ -200,6 +200,25 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
+
+    <!-- Wait modal form -->
+    <div class="modal animated fadIn bd-example-modal-sm" tabindex="-1" role="dialog"
+        aria-labelledby="mySmallModalLabel" aria-hidden="true" id="waitModal">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Please wait...</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-grow text-info" style="width: 3rem; height: 3rem;" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% block javascript %}
 

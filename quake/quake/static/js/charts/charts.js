@@ -1,23 +1,14 @@
-$(document).ready(
-    function () {
-        last_day_chart();
-        last_month_chart();
-        max_mag();
-
-    });
-
-
-function last_day_chart() {
-    var json_day_data = JSON.parse(_chart_day_data.replace(/&#x27;/g, '"'));
+function last_day_chart(json_data) {
+    //var json_day_data = JSON.parse(_chart_day_data.replace(/&#x27;/g, '"'));
     var chart_day_data = [];
-    for (var k in json_day_data) {
-        chart_day_data.push(json_day_data[k]);
+    for (var k in json_data) {
+        chart_day_data.push(json_data[k]);
     }
 
     var color = Chart.helpers.color;
     var ctx = document.getElementById("dayChart");
     var myPieChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'bar',
         data: {
             labels: ["mag < 3", "mag between 3 and 6", "mag > 6"],
             datasets: [{
@@ -39,7 +30,7 @@ function last_day_chart() {
         options: {
             maintainAspectRatio: false,
             legend: {
-                display: true,
+                display: false,
                 position: 'bottom'
             },
             cutoutPercentage: 50,
@@ -47,10 +38,8 @@ function last_day_chart() {
     });
 }
 
-
-
-function last_month_chart() {
-    var json_data = JSON.parse(_chart_mon_data.replace(/&#x27;/g, '"'));
+function last_month_chart(json_data) {
+    //var json_data = JSON.parse(_chart_mon_data.replace(/&#x27;/g, '"'));
     var chart_mon_data = [];
     for (var k in json_data) {
         chart_mon_data.push(json_data[k]);
@@ -60,7 +49,7 @@ function last_month_chart() {
     var color = Chart.helpers.color;
     var ctx = document.getElementById("monthChart");
     var myPieChart = new Chart(ctx, {
-        type: 'pie',
+        type: 'bar',
         data: {
             labels: ["mag < 3", "mag between 3 and 6", "mag > 6"],
             datasets: [{
@@ -82,7 +71,7 @@ function last_month_chart() {
         options: {
             maintainAspectRatio: false,
             legend: {
-                display: true,
+                display: false,
                 position: 'bottom'
             },
             cutoutPercentage: 50,
@@ -90,9 +79,8 @@ function last_month_chart() {
     });
 }
 
-
-function max_mag() {
-    json_data = JSON.parse(_chart_max_data.replace(/&#x27;/g, '"'));
+function max_mag(json_data) {
+    //json_data = JSON.parse(_chart_max_data.replace(/&#x27;/g, '"'));
     var chart_max_data = [];
     for (var k in json_data) {
         chart_max_data.push(json_data[k]);
