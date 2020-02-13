@@ -4,15 +4,17 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.conf import settings
 from django.contrib.auth.views import LoginView
+from django.conf.urls import url
 from . import views
 
 urlpatterns = [
     path('', views.dashboard, name='home'),    
     path('admin/', admin.site.urls),
     #path('quakemap/', include('quakemap.urls'), name='map'),    
-    path('signin/', views.loginpage, name='signin'),
-    path('profile/', views.profilepage, name='profile'),
-    path('logout/', views.logoutpage, name='logout'),
+    url(r'^signin/', views.loginpage, name='signin'),
+    url(r'^profile/', views.profilepage, name='profile'),
+    url(r'^logout/', views.logoutpage, name='logout'),
+    url(r'^register/', views.registerpage, name='register'),
 ]
 
 
@@ -25,7 +27,7 @@ urlpatterns += [
 
 urlpatterns += [
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('dashboard/update/',views.update_dashboard,name='dashboard_update'),
-    path('update/',views.update_dashboard,name='dashboard_update'),
+    url(r'^dashboard/update/',views.update_dashboard,name='dashboard_update'),
+    url(r'^update/',views.update_dashboard,name='dashboard_update'),
 ]
 

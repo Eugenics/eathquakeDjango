@@ -57,6 +57,10 @@ def logoutpage(request):
     except:
         pass
     return render(request, 'login.html', {})
+
+
+def registerpage(request):
+    return render(request,'register.html')
 # ----------------------------------------------
 
 
@@ -274,9 +278,9 @@ def get_data_for_dashboard(request):
         "date_till": date_till,
         "session_key": session_key,
         "chart_day_data": {"mag_3": mag_less_3,
-                            "mag_4": mag_less_6, "mag_6": mag_more_6},
+                           "mag_4": mag_less_6, "mag_6": mag_more_6},
         "chart_mon_data": {"mag_3": mag_mon_less_3,
-                            "mag_4": mag_mon_less_6, "mag_6": mag_mon_more_6},
+                           "mag_4": mag_mon_less_6, "mag_6": mag_mon_more_6},
         "chart_max_data": {
             "max_day": max_day_mag['mag__max'],
             "max_mon": max_mon_mag['mag__max'],
