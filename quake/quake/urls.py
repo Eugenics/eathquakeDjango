@@ -11,10 +11,10 @@ urlpatterns = [
     path('', views.dashboard, name='home'),    
     path('admin/', admin.site.urls),
     #path('quakemap/', include('quakemap.urls'), name='map'),    
-    url(r'^signin/', views.loginpage, name='signin'),
-    url(r'^profile/', views.profilepage, name='profile'),
-    url(r'^logout/', views.logoutpage, name='logout'),
-    url(r'^register/', views.registerpage, name='register'),
+    url(r'^signin/$', views.loginpage, name='signin'),
+    url(r'^profile/$', views.profilepage, name='profile'),
+    url(r'^logout/$', views.logoutpage, name='logout'),
+    url(r'^register/$', views.registerpage, name='register'),
 ]
 
 
@@ -27,7 +27,7 @@ urlpatterns += [
 
 urlpatterns += [
     path('dashboard/', views.dashboard, name='dashboard'),
-    url(r'^dashboard/update/',views.update_dashboard,name='dashboard_update'),
-    url(r'^update/',views.update_dashboard,name='dashboard_update'),
+    url(r'^dashboard/update/$',views.update_dashboard,name='dashboard_update'),
+    url(r'^update/$',views.update_dashboard,name='dashboard_update'),
 ]
 

@@ -6,7 +6,7 @@
 <div class="container">
 
     <!-- Outer Row -->
-    <div class="row justify-content-center">        
+    <div class="row justify-content-center">
         <div class="card o-hidden border-0 shadow-lg my-5">
             <div class="card-body p-10">
                 <!-- Nested Row within Card Body -->
@@ -16,10 +16,10 @@
                             <h1 class="h4 text-gray-900 mb-4">Please Login...</h1>
                         </div>
                         <form class="user" method="POST" action="{% url 'signin' %}">
-                            {% csrf_token %}                            
+                            {% csrf_token %}
                             <div class="form-group">
                                 <input type="text" class="form-control form-control-user" name="username"
-                                    placeholder="Enter Login..." required="required">
+                                    placeholder="Enter Login..." required="required"  size="30">
                             </div>
                             <div class="form-group">
                                 <input type="password" class="form-control form-control-user" name="password"
@@ -30,7 +30,7 @@
                                     <input type="checkbox" class="custom-control-input" id="customCheck">
                                     <label class="custom-control-label" for="customCheck">Remember Me</label>
                                 </div>
-                            </div>                                                      
+                            </div>
                             <button class="btn btn-primary btn-user btn-block" type="submit">Login</button>
                         </form>
                         <hr>

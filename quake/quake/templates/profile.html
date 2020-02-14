@@ -1,0 +1,78 @@
+{% extends "base_login.html" %}
+{% load static i18n %}
+
+
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body">
+                <!-- Nested Row within Card Body -->
+                <div class="row">
+                    <div class="p-5">
+                        <div class="text-center">
+                            {% if error_message %}
+                            <h5 class="h5 text-danger mb-4">{{error_message}}</h4>
+                                {% endif %}
+                                <h1 class="h4 text-gray-900 mb-4">Profile...</h1>
+                        </div>
+                        <form class="user" method="POST" action="{% url 'profile' %}">
+                            {% csrf_token %}
+                            <div class="form-group row">
+                                <div class="col">
+                                    <div class="label">
+                                        First name:
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user" name="FirstNameInput"
+                                        placeholder="First Name" required="required" value="{{user_first_name}}"
+                                        size="50">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col">
+                                    <div class="label">
+                                        Last name:
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user" name="LastNameInput"
+                                        placeholder="Last Name" required="required" value="{{user_last_name}}"
+                                        size="50">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col">
+                                    <div class="label">
+                                        Login:
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="text" class="form-control form-control-user" name="LoginInput"
+                                        placeholder="Login name" required="required" value="{{user_login_name}}"
+                                        size="50">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col">
+                                    <div class="label">
+                                        Email:
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                    <input type="email" class="form-control form-control-user" name="EmailInput"
+                                        placeholder="Email Address" required="required" value="{{user_email}}"
+                                        size="50">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-user btn-block" type="submit">Save profile</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

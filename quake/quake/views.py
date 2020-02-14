@@ -3,12 +3,14 @@ import json
 import datetime
 
 
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect, reverse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.views import generic
 from django.utils import timezone
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Max, FloatField
+
+from django.urls import reverse_lazy, reverse
 
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -43,12 +45,33 @@ def loginpage(request):
 
 
 def profilepage(request):
+    if request.method == 'POST':
+        return render(request, 'profile.html')
+    else:
+        session_object = Session.objects.get(pk=request.session.session_key)
+        user_id = int(session_object.get_decoded().get('_auth_user_id'))
+
+        user_login_name = User.objects.get(pk=user_id).username
+        user_first_name = User.objects.get(pk=user_id).first_name
+        user_last_name = User.objects.get(pk=user_id).last_name
+        user_email = User.objects.get(pk=user_id).email
+        context = {
+            'user_first_name': user_first_name,
+            'user_last_name': user_last_name,
+            'user_login_name': user_login_name,
+            'user_email': user_email
+        }
+
+        return render(request, 'profile.html', context)
+
+    """
     if request.session.has_key('username'):
         user_name = request.session['username']
         query = User.objects.filter(username=user_name)
         return render(request, 'profile.html', {"query": query})
     else:
         return render(request, 'login.html', {})
+    """
 
 
 def logoutpage(request):
@@ -60,7 +83,45 @@ def logoutpage(request):
 
 
 def registerpage(request):
-    return render(request,'register.html')
+    if request.method == 'POST':
+        user_first_name = request.POST['FirstNameInput']
+        user_last_name = request.POST['LastNameInput']
+        user_login_name = request.POST['LoginInput']
+        user_email = request.POST['EmailInput']
+        user_password = request.POST['PasswordInput']
+        user_repeat_password = request.POST['RepeatPasswordInput']
+
+        if user_password != user_repeat_password:
+            context = {
+                'error_message': 'Incorrect password! Password must march!',
+                'user_first_name': user_first_name,
+                'user_last_name': user_last_name,
+                'user_login_name': user_login_name,
+                'user_email': user_email
+            }
+            return render(request, 'register.html', context)
+
+        if User.objects.filter(username=user_login_name).count() > 0:
+            context = {
+                'error_message': 'Incorrect user login name! This login name is in used.',
+                'user_first_name': user_first_name,
+                'user_last_name': user_last_name,
+                'user_login_name': '',
+                'user_email': user_email
+            }
+            return render(request, 'register.html', context)
+
+        User.objects.create_user(
+            user_login_name,
+            user_email,
+            user_password,
+            first_name=user_first_name,
+            last_name=user_last_name,
+        )
+
+        return HttpResponseRedirect(reverse('signin'))
+    else:
+        return render(request, 'register.html')
 # ----------------------------------------------
 
 
