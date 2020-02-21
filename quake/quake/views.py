@@ -45,12 +45,20 @@ def loginpage(request):
 
 
 def profilepage(request):
-    if request.method == 'POST':
-        return render(request, 'profile.html')
-    else:
-        session_object = Session.objects.get(pk=request.session.session_key)
-        user_id = int(session_object.get_decoded().get('_auth_user_id'))
+    session_object = Session.objects.get(pk=request.session.session_key)
+    user_id = int(session_object.get_decoded().get('_auth_user_id'))
 
+
+    if request.method == 'POST':        
+        U = User.objects.get(pk=user_id)
+        U.username = request.POST["LoginInput"]
+        U.first_name = request.POST["FirstNameInput"]
+        U.last_name = request.POST["LastNameInput"]
+        U.email = request.POST["EmailInput"]
+        U.save()
+        
+        return HttpResponseRedirect(reverse('home'))
+    else:
         user_login_name = User.objects.get(pk=user_id).username
         user_first_name = User.objects.get(pk=user_id).first_name
         user_last_name = User.objects.get(pk=user_id).last_name
